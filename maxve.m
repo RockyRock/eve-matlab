@@ -1,25 +1,30 @@
-function [E, x_e] = maxve(A, b)
-% MAXVE function
+function [B, d] = maxve(A, b)
+% MAXVE function: [B, d] = maxve(A, b)
 % Function to find the maximum volume ellipsoid E inscribed in a polytopic
-% convex set S define such that: S = {x | Ax <= b}.
-% S is assumed to be bounded with non-empty interior.
+% convex set P define such that
+%
+% P = {x | Ax <= b}.
+%
+% P is assumed to be bounded with non-empty interior.
 % The inputs of the function are A and b respectivelly the matrix and
 % vector defining the polyhedron inequalities.
-% The outputs of the function are E and x_e repsectivelly the ellipsoid
-% matrix and center.
+% The outputs of the function are B and d repsectivelly the ellipsoid
+% matrix and center, such that the ellipsoid E is defined as follows
+%
+% E = {Bu + d | norm(u, 2) <=1}.
 
 % R. Guicherd - November 2019
 %% Sanity check
 
-S = Polyhedron('A', A, 'b', b);
+P = Polyhedron('A', A, 'b', b);
 
 % Check for empty set
-if S.isEmptySet()
+if P.isEmptySet()
     error('S is an empty polyhedron!')
 end
 
 % Check for bounded polyhedron
-if ~S.isBounded()
+if ~P.isBounded()
     error('S is not a bounded polyhedron!')
 end
 
@@ -46,8 +51,8 @@ Opts = sdpsettings('solver', 'sedumi', 'sedumi.eps', 1e-9, 'verbose', 1);
 optimize(Cons, -logdet(B), Opts)
 
 % Extract the values of B and d
-E = value(B);
-x_e = value(d);
+B = value(B);
+d = value(d);
 
 end
 %%%%% END OF MAXVE FUNCTION %%%%%
